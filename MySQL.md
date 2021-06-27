@@ -240,7 +240,7 @@ WHERE phone IS NOT NULL;
 
 > JOIN联表查询学习
 
-![七种JOIN联表查询](./JOIN查询.png)
+![七种JOIN联表查询](./连接查询.png)
 
 ```mysql
 -- JOIN联表查询
@@ -304,7 +304,7 @@ FROM category AS fu, category AS zi
 WHERE fu.categoryid=zi.pid;
 ```
 
-![自连接查询](./自连接查询结果.png)
+![自连接查询](./自连接查询.png)
 
 > 分页和排序
 
