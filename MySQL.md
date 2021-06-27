@@ -238,3 +238,74 @@ SELECT studentno,studentname FROM student
 WHERE phone IS NOT NULL;
 ```
 
+> JOIN联表查询学习
+
+![七种JOIN联表查询](./JOIN查询.png)
+
+```mysql
+-- JOIN联表查询
+-- 查询参加了考试的同学（学号、姓名、科目编号、分数）
+SELECT * FROM student;
+SELECT * FROM result;
+
+-- INNER JOIN查询方式
+SELECT s.studentno,studentname,subjectno,studentresult
+FROM student AS s
+INNER JOIN result AS r
+ON s.studentno = r.studentno;
+
+-- RIGHT JOIN查询方式
+SELECT s.studentno,studentname,subjectno,studentresult
+FROM student s
+RIGHT JOIN result r
+ON s.studentno = r.studentno;
+
+-- LEFT JOIN查询方式
+SELECT s.studentno,studentname,subjectno,studentresult
+FROM student s
+LEFT JOIN result r
+ON s.studentno = r.studentno;
+```
+
+|查询操作|具体描述|
+|:---:|:---:|
+|INNER JOIN|如果两个表中至少有一个匹配，就返回行结果|
+|RIGHT JOIN|会从左表中返回查询行结果，即使右表中没有匹配|
+|LEFT JOIN|会从右表中返回查询行结果，即使左表中没有匹配|
+
+> 自连接查询学习
+
+```mysql
+CREATE TABLE school.category( 
+categoryid INT NOT NULL COMMENT 'id',
+pid INT NOT NULL COMMENT '父id,没有父则为1', 
+categoryname VARCHAR(10) NOT NULL COMMENT '种类名字', 
+PRIMARY KEY (categoryid) 
+) ENGINE=INNODB CHARSET=utf8mb4;
+
+INSERT INTO category (categoryid, pid, categoryname) 
+VALUES (2, 1, '信息技术');
+INSERT INTO category (categoryid, pid, categoryname) 
+VALUES (3, 1, '软件开发');
+INSERT INTO category (categoryid, pid, categoryname) 
+VALUES (5, 1, '美术设计');
+INSERT INTO category (categoryid, pid, categoryname) 
+VALUES (4, 3, '数据库');
+INSERT INTO category (categoryid, pid, categoryname) 
+VALUES (8, 2, '办公信息');
+INSERT INTO category (categoryid, pid, categoryname) 
+VALUES (6, 3, 'Web开发');
+INSERT INTO category (categoryid, pid, categoryname) 
+VALUES (7, 5, 'PS技术');
+
+-- 查询父子信息
+SELECT fu.categoryname AS '父栏目',zi.categoryname AS '子栏目'
+FROM category AS fu, category AS zi
+WHERE fu.categoryid=zi.pid;
+```
+
+![自连接查询](./自连接查询结果.png)
+
+> 分页和排序
+
+TODO
