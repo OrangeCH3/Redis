@@ -306,7 +306,7 @@ WHERE fu.categoryid=zi.pid;
 
 ![自连接查询](./自连接查询.png)
 
-> 分页和排序
+> 分页和排序学习
 
 ```mysql
 -- 排序ORDER BY
@@ -332,7 +332,7 @@ ORDER BY studentresult DESC
 LIMIT 0,10;
 ```
 
-> 子/嵌套查询
+> 子/嵌套查询学习
 
 ```mysql
 -- 1 使用连接查询
@@ -355,5 +355,40 @@ ORDER BY studentresult DESC;
 ```
 
 ## 1.3 MySQL函数学习
+
+> 常用函数学习
+
+```mysql
+-- 数学运算
+SELECT ABS(-8); -- 绝对值
+SELECT CEILING(9.4); -- 向上取整
+SELECT FLOOR(9.7); -- 向下取整
+SELECT RAND(); -- 返回一个0~1之间的随机数
+SELECT SIGN(10); -- 判断一个数的符号
+
+-- 字符串函数
+SELECT CHAR_LENGTH('OrangeCH3'); -- 字符串长度
+SELECT CONCAT('OrangeCH3->','Sun'); -- 字符串拼接
+SELECT INSERT('HelloWorld!',6,5,'OrangeCH3'); -- 字符串替换
+SELECT LOWER('DIT-FFT'); -- 转换为大写
+SELECT UPPER('earth'); -- 转换为小写
+SELECT SUBSTR('DIF-FFT',3,4); -- 返回指定参数的字符串
+SELECT REVERSE('Apple'); -- 字符串反转
+
+-- 时间和日期函数
+SELECT CURRENT_DATE(); -- 获取当前日期
+SELECT CURDATE(); -- 同上
+SELECT NOW(); -- 获取当前的时间
+SELECT LOCALTIME(); -- 获取本地时间
+SELECT SYSDATE(); -- 获取系统时间
+SELECT DAY(NOW()); -- 获取当前时间的DAY信息
+
+-- 系统函数
+SELECT SYSTEM_USER(); -- 获取当前系统用户
+SELECT USER(); -- 获取当前用户
+SELECT VERSION(); -- 获取当前MySQL版本信息
+```
+
+> 聚合函数学习
 
 TODO
