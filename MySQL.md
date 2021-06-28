@@ -308,4 +308,52 @@ WHERE fu.categoryid=zi.pid;
 
 > 分页和排序
 
+```mysql
+-- 排序ORDER BY
+SELECT subjectname,classhour
+FROM SUBJECT
+ORDER BY classhour DESC;
+
+-- 分页LIMIT
+SELECT subjectname,classhour
+FROM SUBJECT
+ORDER BY classhour DESC
+LIMIT 0,5;
+
+-- 综合查询
+SELECT s.studentno, studentname, subjectname, studentresult
+FROM student s
+INNER JOIN result r
+ON s.studentno = r.studentno
+INNER JOIN `subject` sub
+ON sub.subjectno = r.subjectno
+WHERE subjectname = 'Java程序设计-1' AND studentresult>=60
+ORDER BY studentresult DESC
+LIMIT 0,10;
+```
+
+> 子/嵌套查询
+
+```mysql
+-- 1 使用连接查询
+SELECT studentno, r.subjectno, studentresult
+FROM result r
+INNER JOIN `subject` sub
+ON r.subjectno = sub.subjectno
+WHERE subjectname = '高等数学-1'
+ORDER BY studentresult DESC;
+
+-- 2 使用子查询
+SELECT studentno, subjectno, studentresult
+FROM result
+WHERE subjectno = (
+	SELECT subjectno 
+	FROM `subject`
+	WHERE subjectname = '高等数学-1'
+)
+ORDER BY studentresult DESC;
+```
+
+## 1.3 MySQL函数学习
+
 TODO
