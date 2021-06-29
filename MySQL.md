@@ -412,4 +412,253 @@ HAVING AVG(studentresult)>=80;
 
 ## 1.4 MySQL事务学习
 
+> 事务管理原则(ACID)
+
+- 原子性(**A**tomicity)——要么都成功，要么都失败
+- 一致性(**C**onsistency)——事务前后的数据完整性要保证一致
+- 隔离性(**I**solation)——多个用户对应多个事务，相互隔离
+- 持久性(**D**urability)——事务提交则不可逆，会被持久化到数据库中
+
+```mysql
+/*
+A在线买一款价格为500元商品,网上银行转账
+A的银行卡余额为2000,然后给商家B支付500
+商家B一开始的银行卡余额为10000
+创建数据库shop和创建表account并插入2条数据
+*/
+
+CREATE DATABASE `shop`CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `shop`;
+
+CREATE TABLE `account` (
+`id` INT(11) NOT NULL AUTO_INCREMENT,
+`name` VARCHAR(32) NOT NULL,
+`cash` DECIMAL(9,2) NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+INSERT INTO account (`name`,`cash`)
+VALUES('A',2000.00),('B',10000.00);
+
+-- 转账实现
+SET autocommit = 0; -- 关闭自动提交
+START TRANSACTION;  -- 开始一个事务,标记事务的起始点
+UPDATE account SET cash=cash-500 WHERE `name`='A';
+UPDATE account SET cash=cash+500 WHERE `name`='B';
+COMMIT; -- 提交事务
+# rollback;
+SET autocommit = 1; -- 恢复自动提交
+```
+
+## 1.5 MySQL索引学习
+
+> 索引的作用
+
+- 提高查询速度
+- 确保数据的唯一性
+- 可以加速表和表之间的连接, 实现表与表之间的参照完整性
+- 使用分组和排序子句进行数据检索时, 可以显著减少分组和排序的时间
+- 全文检索字段进行搜索优化
+
+> 索引的分类
+
+- 主键索引(Primary Key)
+- 唯一索引(Unique)
+- 常规索引(Index)
+- 全文索引(FullText)
+
+> 主键索引
+
+主键: 某一个属性组能唯一标识一条记录
+
+特点:
+
+- 最常见的索引类型
+- 确保数据记录的唯一性
+- 确定特定数据记录在数据库中的位置
+
+> 唯一索引
+
+作用: 避免同一个表中某数据列中的值重复
+
+与主键索引的区别：
+
+- 主键索引只能有一个
+- 唯一索引可能有多个
+
+```mysql
+CREATE TABLE `Grade`(
+    `GradeID` INT(11) AUTO_INCREMENT,
+    `GradeName` VARCHAR(32) NOT NULL UNIQUE,
+    PRIMARY KEY (`GradeID`)
+    -- 或 UNIQUE KEY `GradeID` (`GradeID`)
+)
+```
+
+> 常规索引
+
+作用: 快速定位特定数据
+
+注意:
+
+- index和key关键字都可以设置常规索引
+- 应加在查询找条件的字段
+- 不宜添加太多常规索引,影响数据的插入,删除和修改操作
+
+```mysql
+CREATE TABLE `result`(
+   -- 省略一些代码
+  INDEX `ind` (`studentNo`,`subjectNo`) -- 创建表时添加
+)
+```
+
+```mysql
+-- 创建后添加
+ALTER TABLE `result` ADD INDEX `ind`(`studentNo`,`subjectNo`);
+```
+
+> 全文索引
+
+作用: 快速定位特定数据
+
+注意:
+
+- 只能用于MyISAM类型的数据表
+- 只能用于CHAR , VARCHAR , TEXT数据列类型
+- 适合大型数据集
+
+```mysql
+/*
+#方法一：创建表时
+  　　CREATE TABLE 表名 (
+               字段名1 数据类型 [完整性约束条件…],
+               字段名2 数据类型 [完整性约束条件…],
+               [UNIQUE | FULLTEXT | SPATIAL ]   INDEX | KEY
+               [索引名] (字段名[(长度)] [ASC |DESC])
+               );
+
+
+#方法二：CREATE在已存在的表上创建索引
+       CREATE [UNIQUE | FULLTEXT | SPATIAL ] INDEX 索引名
+                    ON 表名 (字段名[(长度)] [ASC |DESC]) ;
+
+
+#方法三：ALTER TABLE在已存在的表上创建索引
+       ALTER TABLE 表名 ADD [UNIQUE | FULLTEXT | SPATIAL ] INDEX
+                            索引名 (字段名[(长度)] [ASC |DESC]) ;
+                           
+                           
+#删除索引：DROP INDEX 索引名 ON 表名字;
+#删除主键索引: ALTER TABLE 表名 DROP PRIMARY KEY;
+
+
+#显示索引信息: SHOW INDEX FROM student;
+*/
+
+/*增加全文索引*/
+ALTER TABLE `school`.`student` ADD FULLTEXT INDEX `studentname` (`StudentName`);
+
+/*EXPLAIN : 分析SQL语句执行性能*/
+EXPLAIN SELECT * FROM student WHERE studentno='1000';
+
+/*使用全文索引*/
+-- 全文搜索通过 MATCH() 函数完成。
+-- 搜索字符串作为 against() 的参数被给定。搜索以忽略字母大小写的方式执行。对于表中的每个记录行，MATCH() 返回一个相关性值。即，在搜索字符串与记录行在 MATCH() 列表中指定的列的文本之间的相似性尺度。
+EXPLAIN SELECT *FROM student WHERE MATCH(studentname) AGAINST('love');
+
+/*
+开始之前，先说一下全文索引的版本、存储引擎、数据类型的支持情况
+
+MySQL 5.6 以前的版本，只有 MyISAM 存储引擎支持全文索引；
+MySQL 5.6 及以后的版本，MyISAM 和 InnoDB 存储引擎均支持全文索引;
+只有字段的数据类型为 char、varchar、text 及其系列才可以建全文索引。
+测试或使用全文索引时，要先看一下自己的 MySQL 版本、存储引擎和数据类型是否支持全文索引。
+*/
+```
+
+> 测试索引
+
+建表app_user：
+
+```mysql
+CREATE TABLE `app_user` (
+`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+`name` varchar(50) DEFAULT '' COMMENT '用户昵称',
+`email` varchar(50) NOT NULL COMMENT '用户邮箱',
+`phone` varchar(20) DEFAULT '' COMMENT '手机号',
+`gender` tinyint(4) unsigned DEFAULT '0' COMMENT '性别（0:男；1：女）',
+`password` varchar(100) NOT NULL COMMENT '密码',
+`age` tinyint(4) DEFAULT '0' COMMENT '年龄',
+`create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+`update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='app用户表'
+```
+
+批量插入100w行数据：
+
+```mysql
+DROP FUNCTION IF EXISTS mock_data;
+DELIMITER $$
+CREATE FUNCTION mock_data()
+RETURNS INT
+BEGIN
+DECLARE num INT DEFAULT 1000000;
+DECLARE i INT DEFAULT 0;
+WHILE i < num DO
+  INSERT INTO app_user(`name`, `email`, `phone`, `gender`, `password`, `age`)
+   VALUES(CONCAT('用户', i), '24736743@qq.com', CONCAT('18', FLOOR(RAND()*(999999999-100000000)+100000000)),FLOOR(RAND()*2),UUID(), FLOOR(RAND()*100));
+  SET i = i + 1;
+END WHILE;
+RETURN i;
+END;
+SELECT mock_data();
+```
+
+索引效率测试:
+
+```mysql
+-- 无索引测试
+SELECT * FROM app_user WHERE name = '用户9999'; -- 查看耗时
+SELECT * FROM app_user WHERE name = '用户9999';
+SELECT * FROM app_user WHERE name = '用户9999';
+
+-- 创建索引
+CREATE INDEX idx_app_user_name ON app_user(name);
+```
+
+![无索引测试结果](./无索引测试结果.png)
+![创建索引后测试结果](./创建索引后测试结果.png)
+
+> 索引准则
+
+- 索引不是越多越好
+- 不要对经常变动的数据加索引
+- 小数据量的表建议不要加索引
+- 索引一般应加在查找条件的字段
+
+> 索引的数据结构
+
+我们可以在创建上述索引的时候，为其指定索引类型，分两类:
+
+- Hash类型的索引，查询单条快，范围查询慢
+- B-tree类型的索引，b+树，层数越多，数据量指数级增长（我们就用它，因为innodb默认支持它）
+
+不同的存储引擎支持的索引类型也不一样：
+
+- InnoDB支持事务，支持行级别锁定，支持B-tree、Full-text等索引，不支持Hash索引
+- MyISAM不支持事务，支持表级别锁定，支持B-tree、Full-text等索引，不支持Hash索引
+- Memory不支持事务，支持表级别锁定，支持B-tree、Hash等索引，不支持Full-text索引
+- NDB支持事务，支持行级别锁定，支持Hash索引，不支持B-tree、Full-text等索引
+- Archive不支持事务，支持表级别锁定，不支持B-tree、Hash、Full-text等索引
+
+## 1.6 权限管理和备份
+
 TODO
+
+## 1.7 规范数据库设计
+
+
+## 1.8 JDBC-API学习
+
+
