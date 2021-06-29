@@ -391,4 +391,25 @@ SELECT VERSION(); -- 获取当前MySQL版本信息
 
 > 聚合函数学习
 
+```mysql
+SELECT COUNT(studentname)
+FROM student; -- 统计指定字段的数量，会忽略null值
+
+SELECT COUNT(*)
+FROM student; -- 统计行数，不会忽略null值
+
+SELECT COUNT(1)
+FROM student; -- 统计行数，不会忽略null值
+
+-- 查询不同课程的平均分，最高分，最低分；要求平均分≥80分
+SELECT subjectname, AVG(studentresult), MAX(studentresult), MIN(studentresult)
+FROM result r
+INNER JOIN `subject` sub
+ON r.subjectno = sub.subjectno
+GROUP BY r.subjectno
+HAVING AVG(studentresult)>=80;
+```
+
+## 1.4 MySQL事务学习
+
 TODO
