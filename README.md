@@ -1,6 +1,6 @@
-# Redis-Demo
+# Redis
 
-Redis-Demo
+Redis
 
 Preliminary study of Redis with SpringBoot framework!
 
